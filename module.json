@@ -16,7 +16,7 @@
   ],
   "url": "https://github.com/ricardopiloto/weather-control",
   "manifest": "https://github.com/ricardopiloto/weather-control/blob/main/module.json",
-  "download": "https://gitlab.com/jstebenne/foundryvtt-weather-control/-/jobs/artifacts/v4.1.9/raw/weather-control.zip?job=pack",
+  "download": "https://github.com/ricardopiloto/weather-control/releases/download/1.0.0/module.zip",
   "esmodules": [
     "scripts/main.js"
   ],

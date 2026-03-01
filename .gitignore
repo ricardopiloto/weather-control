@@ -1,5 +1,5 @@
 .cursor
 AGENTS.md
-/openspec/archive/
-/openspec/changes/
+openspec/archive/*
+openspec/changes/*
 project.md
