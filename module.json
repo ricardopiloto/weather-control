@@ -2,7 +2,7 @@
   "id": "weather-control",
   "title": "Weather Control",
   "description": "Add dynamic weather to your FoundryVTT world.",
-  "version": "4.1.9",
+  "version": "4.2.0",
   "compatibility": {
     "minimum": "10",
     "verified": "13"
