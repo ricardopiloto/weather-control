@@ -14,8 +14,8 @@
       "flags": {}
     }
   ],
-  "url": "https://gitlab.com/jstebenne/foundryvtt-weather-control",
-  "manifest": "https://gitlab.com/jstebenne/foundryvtt-weather-control/-/raw/master/static/module.json",
+  "url": "https://github.com/ricardopiloto/weather-control",
+  "manifest": "https://github.com/ricardopiloto/weather-control/blob/main/module.json",
   "download": "https://gitlab.com/jstebenne/foundryvtt-weather-control/-/jobs/artifacts/v4.1.9/raw/weather-control.zip?job=pack",
   "esmodules": [
     "scripts/main.js"
@@ -81,14 +81,6 @@
   ],
   "relationships": {
     "requires": [
-      {
-        "id": "foundryvtt-simple-calendar",
-        "type": "module",
-        "manifest": "https://github.com/vigoren/foundryvtt-simple-calendar/releases/latest/download/module.json",
-        "compatibility": {}
-      }
-    ],
-    "recommends": [
       {
         "id": "foundryvtt-simple-calendar-reborn",
         "type": "module",
