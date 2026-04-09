@@ -23,7 +23,7 @@ This module has been **adapted for use with Warhammer Fantasy Roleplay (WFRP)** 
 
 | Dependency | Type | Notes |
 |------------|------|--------|
-| **Foundry VTT** | Core | Minimum 10; verified on 13 |
+| **Foundry VTT** | Core | Minimum 10; verified on 14 |
 | **foundryvtt-simple-calendar** or **foundryvtt-simple-calendar-reborn** | Required (one of) | Original: minimum **v1.3.73**. Reborn: **v2.5.3+** ([Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar)). Weather Control will not initialise without one of these. |
 | **FXMaster** | Optional | For scene weather effects (rain, snow, etc.) |
 

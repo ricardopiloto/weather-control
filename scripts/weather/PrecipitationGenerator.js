@@ -455,11 +455,15 @@ export class PrecipitationGenerator {
       }
     }
 
-    // Apply effects to the canvas if available (mirrors original behavior via WeatherEffects)
+    // Apply effects to the canvas if available (v14+: public initializeEffects; legacy: _setWeather)
     try {
       const layer = foundry.canvas?.layers?.WeatherEffects;
-      if (layer && typeof layer._setWeather === "function") {
-        layer._setWeather(effects);
+      if (layer) {
+        if (typeof layer.initializeEffects === "function") {
+          layer.initializeEffects(effects);
+        } else if (typeof layer._setWeather === "function") {
+          layer._setWeather(effects);
+        }
       }
     } catch (err) {
       // Fail silently; visual effects are best-effort
