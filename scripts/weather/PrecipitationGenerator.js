@@ -455,7 +455,283 @@ export class PrecipitationGenerator {
       }
     }
 
-    // Apply effects to the canvas if available (v14+: public initializeEffects; legacy: _setWeather)
+    this._applyCanvasEffects(effects);
+
+    return description;
+  }
+
+  /**
+   * Deft Steps, Light Fingers: drive canvas from column keys; build panel HTML (chat uses `dslfChatSummaryLine`).
+   * @param {{ temperature: string, precipitation: string, visibility: string, wind: string }} columns
+   * @param {object} weatherData
+   * @param {{ temperatureDisplay?: string }} [options]
+   * @returns {{ displayHtml: string, mechanicalNotes: string }}
+   */
+  generateDslf(columns, weatherData, options = {}) {
+    const { temperatureDisplay = "" } = options;
+    const effects = [];
+    const t = weatherData;
+    const precKey = columns.precipitation;
+    const visKey = columns.visibility;
+    const windSpeed = this._dslfWindSpeedString(columns.wind);
+    const isSnow = this._dslfUseSnowParticles(columns, t);
+
+    const fogLayer = this._dslfFogCloudFromVisibility(visKey, windSpeed);
+    if (fogLayer) {
+      effects.push(fogLayer);
+    }
+
+    if (precKey === "light") {
+      if (isSnow) {
+        effects.push({
+          type: "snow",
+          options: {
+            density: "40",
+            speed: windSpeed,
+            scale: "40",
+            tint: "#ffffff",
+            direction: "50",
+            apply_tint: true,
+          },
+        });
+      } else {
+        effects.push({
+          type: "rain",
+          options: {
+            density: "25",
+            speed: windSpeed,
+            scale: "50",
+            tint: "#acd2cd",
+            direction: "50",
+            apply_tint: true,
+          },
+        });
+      }
+    } else if (precKey === "heavy") {
+      if (isSnow) {
+        effects.push({
+          type: "snow",
+          options: {
+            density: "85",
+            speed: windSpeed,
+            scale: "85",
+            tint: "#ffffff",
+            direction: "50",
+            apply_tint: true,
+          },
+        });
+      } else {
+        effects.push({
+          type: "rain",
+          options: {
+            density: "83",
+            speed: windSpeed,
+            scale: "100",
+            tint: "#acd2cd",
+            direction: "50",
+            apply_tint: true,
+          },
+        });
+      }
+    } else if (precKey === "very_heavy") {
+      if (isSnow) {
+        effects.push({
+          type: "snow",
+          options: {
+            density: "100",
+            speed: windSpeed,
+            scale: "100",
+            tint: "#ffffff",
+            direction: "50",
+            apply_tint: true,
+          },
+        });
+        effects.push({
+          type: "clouds",
+          options: {
+            density: "50",
+            speed: windSpeed,
+            scale: "50",
+            direction: "50",
+          },
+        });
+      } else {
+        effects.push({
+          type: "rain",
+          options: {
+            density: "100",
+            speed: windSpeed,
+            scale: "100",
+            tint: "#acd2cd",
+            direction: "50",
+            apply_tint: true,
+          },
+        });
+      }
+    }
+
+    this._applyCanvasEffects(effects);
+
+    const L = (k) => this.gameRef.i18n.localize(k);
+    const line = (labelKey, valueKey) =>
+      `<strong>${L(labelKey)}</strong> ${L(valueKey)}`;
+
+    const tempRow = temperatureDisplay
+      ? `<strong>${L("wctrl.dslf.label.temperature")}</strong> ${L(`wctrl.dslf.${columns.temperature}`)} (${temperatureDisplay})`
+      : line("wctrl.dslf.label.temperature", `wctrl.dslf.${columns.temperature}`);
+
+    const displayHtml = [
+      tempRow,
+      line("wctrl.dslf.label.precipitation", `wctrl.dslf.precip.${columns.precipitation}`),
+      line("wctrl.dslf.label.visibility", `wctrl.dslf.vis.${columns.visibility}`),
+      line("wctrl.dslf.label.wind", `wctrl.dslf.wind.${columns.wind}`),
+    ].join("<br>");
+
+    return {
+      displayHtml,
+      mechanicalNotes: this.dslfMechanicalLines(columns),
+    };
+  }
+
+  /**
+   * WFRP mechanical reminders for DSLF detail chat / storage (not the WeatherFX one-liner).
+   * @param {{ temperature: string, precipitation: string, visibility: string, wind: string }} columns
+   * @returns {string}
+   */
+  dslfMechanicalLines(columns) {
+    const L = (k) => this.gameRef.i18n.localize(k);
+    const parts = [
+      L(`wctrl.dslf.mechanical.temp.${columns.temperature}`),
+      L(`wctrl.dslf.mechanical.precip.${columns.precipitation}`),
+      L("wctrl.dslf.mechanical.traitNote"),
+    ];
+    return parts.filter(Boolean).join("<br>");
+  }
+
+  /**
+   * One-line plain summary for chat (legacy-style parsers, e.g. WeatherFX). No HTML, no rule blurbs.
+   * When Temperature is Chilly or Bitter, snow-like precip uses legacy `wctrl.weather.tracker.normal.*` blurbs
+   * so parsers match blizzard / heavy snow / moderate snow / light snow keywords.
+   * @param {{ temperature: string, precipitation: string, visibility: string, wind: string }} columns
+   * @returns {string}
+   */
+  dslfChatSummaryLine(columns) {
+    const L = (k) => this.gameRef.i18n.localize(k);
+    const precipLine = this._dslfWeatherFxPrecipSegment(columns, L);
+    const parts = [
+      precipLine,
+      L(`wctrl.dslf.vis.${columns.visibility}`),
+      L(`wctrl.dslf.wind.${columns.wind}`),
+    ];
+    return parts.filter(Boolean).join("; ");
+  }
+
+  /**
+   * @param {{ temperature: string, precipitation: string, wind: string }} columns
+   * @param {function(string): string} L localize (`game.i18n.localize`)
+   * @returns {string}
+   */
+  _dslfWeatherFxPrecipSegment(columns, L) {
+    const { temperature: t, precipitation: p, wind: w } = columns;
+    const cold = t === "chilly" || t === "bitter";
+    if (!cold) {
+      return L(`wctrl.dslf.precip.${p}`);
+    }
+
+    if (p === "very_heavy" && w === "very_strong") {
+      return L("wctrl.weather.tracker.normal.Blizzard");
+    }
+    if (p === "heavy" && (w === "strong" || w === "very_strong")) {
+      return L("wctrl.weather.tracker.normal.HeavySnow");
+    }
+    if (p === "heavy" && (w === "still" || w === "light" || w === "medium")) {
+      return L("wctrl.weather.tracker.normal.LargeSnow");
+    }
+    if (p === "light") {
+      return L("wctrl.weather.tracker.normal.LightSnow");
+    }
+
+    return L(`wctrl.dslf.precip.${p}`);
+  }
+
+  /**
+   * Chilly/Bitter + non-none precip uses snow on canvas; warmer bands use below-freezing °F.
+   * @param {{ temperature: string, precipitation: string }} columns
+   * @param {{ temp: number }} weatherData
+   * @returns {boolean}
+   */
+  _dslfUseSnowParticles(columns, weatherData) {
+    const prec = columns.precipitation;
+    if (prec === "none") {
+      return false;
+    }
+    const coldBand =
+      columns.temperature === "chilly" || columns.temperature === "bitter";
+    if (
+      coldBand &&
+      (prec === "light" || prec === "heavy" || prec === "very_heavy")
+    ) {
+      return true;
+    }
+    return weatherData.temp < 32;
+  }
+
+  /**
+   * Wind column → canvas motion speed for fog/cloud and precip particles.
+   * @param {string} windKey
+   * @returns {string}
+   */
+  _dslfWindSpeedString(windKey) {
+    const map = {
+      still: "22",
+      light: "35",
+      medium: "50",
+      strong: "68",
+      very_strong: "85",
+    };
+    return map[windKey] ?? "50";
+  }
+
+  /**
+   * Visibility drives fog/mist density; wind speed is applied via `windSpeed`.
+   * @param {string} visKey
+   * @param {string} windSpeed
+   * @returns {object | null}
+   */
+  _dslfFogCloudFromVisibility(visKey, windSpeed) {
+    if (visKey === "clear") {
+      return null;
+    }
+    if (visKey === "mist") {
+      return {
+        type: "clouds",
+        options: {
+          density: "50",
+          speed: windSpeed,
+          scale: "55",
+          tint: "#bcbcbc",
+          direction: "50",
+          apply_tint: true,
+        },
+      };
+    }
+    if (visKey === "thick_fog") {
+      return {
+        type: "clouds",
+        options: {
+          density: "85",
+          speed: windSpeed,
+          scale: "100",
+          tint: "#9e9e9e",
+          direction: "50",
+          apply_tint: true,
+        },
+      };
+    }
+    return null;
+  }
+
+  _applyCanvasEffects(effects) {
     try {
       const layer = foundry.canvas?.layers?.WeatherEffects;
       if (layer) {
@@ -468,8 +744,6 @@ export class PrecipitationGenerator {
     } catch (err) {
       // Fail silently; visual effects are best-effort
     }
-
-    return description;
   }
 
   extremeWeather(weatherData) {

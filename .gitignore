@@ -1,6 +1,5 @@
 .cursor
 AGENTS.md
+project.md
 # Ignore everything under openspec except openspec/specs
-openspec/*
-!openspec/specs/
-!openspec/specs/**
+openspec/changes/*

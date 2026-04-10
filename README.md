@@ -1,8 +1,25 @@
 # Weather Control
 
-Add **dynamic, calendar-driven weather** to your Foundry VTT world. Weather Control integrates with **Simple Calendar** to use the current date and season, then generates daily temperature and precipitation from **seasonal 1d100 tables** and **seasonal temperature profiles** (German historical reference, DWD from 1881). It can output weather to chat and work with modules like **FXMaster** for scene effects.
+Add **dynamic, calendar-driven weather** to your Foundry VTT world. Weather Control integrates with **Simple Calendar** to use the current date and season, then generates daily weather using the **Deft Steps, Light Fingers** rules (WFRP): **four separate 1d10 rolls** (Temperature, Precipitation, Visibility, Wind) with **seasonal modifiers** and optional **environmental** modifiers. The **weather panel** shows the four-column summary; **chat** uses the same **legacy-style** line as before DSLF (**bold temperature** + short **one-line** description) so tools like **WeatherFX** can parse messages. **Foundry scene weather** (rain, snow, clouds) is applied by this module via the canvas layer. **FXMaster** remains optional for extra scene effects if you use it.
 
-This module has been **adapted for use with Warhammer Fantasy Roleplay (WFRP)** and the seasonal weather table from **Enemy in Shadows Companion**, making it well suited for Old World and other European-style campaigns.
+**Intended for WFRP4e:** This fork is aimed at **Warhammer Fantasy Roleplay 4th Edition** tables and workflows (DSLF default; optional legacy Enemy in Shadows). Other systems can use the module for generic weather, but the **labels and mechanical notes** follow WFRP references.
+
+**Legacy mode:** In module settings you can enable **“Use legacy Enemy in Shadows weather (1d100)”** to restore the **Enemy in Shadows Companion** style **seasonal 1d100** table plus **German DWD–style** seasonal temperature profiles (°F random walk).
+
+---
+
+## Weather rules at a glance
+
+| Topic | **DSLF (default)** | **Enemy in Shadows — legacy (optional)** |
+|--------|----------------------|------------------------------------------|
+| **Source book** | *Deft Steps, Light Fingers* (WFRP) | *Enemy in Shadows Companion* + original **`generate`** weather logic |
+| **Dice** | Four **1d10** rolls with shared modifiers | **1d100** seasonal → category → internal roll → **`PrecipitationGenerator.generate`**; **1d20** fallback if season cannot be resolved |
+| **Temperature** | Column band + **°F** display value, clamped to season range | DWD **random walk** in **°F** (min/max per season) |
+| **Conditions** | Four columns (Temp, Precip, Visibility, Wind) | Category → internal roll → localized strings + canvas effects |
+| **Chat** | First line + optional WFRP detail card | **Single** message via **`output()`**: bold temperature + one precipitation string |
+| **Weather panel** | Full **DSLF** four-line HTML | Legacy description + temperature HTML |
+
+See [DSLF (default)](#weather-generation-scene-effects-and-chat-dslf--default) and [legacy](#legacy-enemy-in-shadows-optional-setting) for full rules.
 
 ---
 
@@ -10,12 +27,15 @@ This module has been **adapted for use with Warhammer Fantasy Roleplay (WFRP)** 
 
 - **Calendar integration**: Uses [Simple Calendar](https://github.com/vigoren/foundryvtt-simple-calendar) or [Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar) for the current date and season. Weather updates when the calendar date or time changes (e.g. when the GM advances time).
 - **Season selector**: Choose **Auto** (follow Simple Calendar’s current season) or fix **Spring**, **Summer**, **Autumn**, or **Winter** for weather generation. The selection is saved across sessions.
-- **Seasonal weather table**: For each season, a **1d100** roll is mapped to a weather category (Dry, Fair, Rain, Downpour, Snow, Blizzard). Ranges differ by season (e.g. more rain in spring, snow/blizzard in winter).
-- **Seasonal temperature profiles**: Temperature uses reference profiles (base, min, max in °F) validated against **German** historical seasonal data (DWD, start of measurements **1881**). Winter ≈ -5 to 5°C, Summer ≈ 20 to 30°C; daily temperature varies around the seasonal base and is clamped to the season’s range.
-- **Output to chat**: Option to send the day’s weather (temperature and precipitation description) to chat, with configurable visibility (e.g. GM only, all players).
-- **Player visibility**: Option to let players see the weather panel (temperature and description) without being able to change season or regenerate weather.
-- **Optional FXMaster**: If FXMaster is installed and scene weather is enabled in settings, the module can drive visual weather effects based on the generated weather.
-- **Multi-language**: UI and messages support English, Français, Deutsch, Español, Polski, Português (Brasil), 日本語, 简体中文, and Korean.
+- **Deft Steps, Light Fingers (default)**: Roll **1d10** separately for each column; apply modifiers **per roll**: Summer +0; Spring +2; Autumn +2; Winter +4; optional **+2** for **colder climate** and **+2** for **high altitude** (world settings). Results map to the book’s four columns (e.g. Sweltering → Bitter, None → Very Heavy precipitation, Clear → Thick Fog, Still → Very Strong wind). Representative **°F** values drive rain/snow on the canvas.
+- **Reference strings**: Optional **`wctrl.dslf.mechanical.*`** entries in `lang/*.json` are for reference only; they are **not** posted to chat. Apply traits and tests per your rulebook.
+- **Legacy Enemy in Shadows weather** (optional): Seasonal **1d100** → category (Dry, Fair, Rain, …) and DWD-style **temperature** random walk in °F.
+- **Output to chat**: Option to send the day’s weather to chat, with configurable visibility (e.g. GM only, all players).
+- **Player visibility**: Option to let players see the weather panel without being able to change season or regenerate weather.
+- **Scene weather**: Foundry canvas weather layer (`WeatherEffects`); optional **FXMaster** if you use it elsewhere.
+- **Multi-language**: UI and messages support English, Français, Deutsch, Español, Polski, Português (Brasil), 日本語, 简体中文, and Korean. **DSLF** column labels and optional **mechanical** reference strings in `lang/*.json` are maintained for **English** first; other languages can be extended.
+
+See **[CHANGELOG.md](./CHANGELOG.md)** for version history.
 
 ---
 
@@ -23,7 +43,7 @@ This module has been **adapted for use with Warhammer Fantasy Roleplay (WFRP)** 
 
 | Dependency | Type | Notes |
 |------------|------|--------|
-| **Foundry VTT** | Core | Minimum 10; verified on 14 |
+| **Foundry VTT** | Core | Minimum 13; verified on 14 |
 | **foundryvtt-simple-calendar** or **foundryvtt-simple-calendar-reborn** | Required (one of) | Original: minimum **v1.3.73**. Reborn: **v2.5.3+** ([Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar)). Weather Control will not initialise without one of these. |
 | **FXMaster** | Optional | For scene weather effects (rain, snow, etc.) |
 
@@ -54,6 +74,11 @@ This module has been **adapted for use with Warhammer Fantasy Roleplay (WFRP)** 
 ### Output to chat
 
 - In **Configure Settings** → **Weather Control**, you can set **Output weather to chat**. When enabled, each time weather is generated (e.g. on date change or regenerate), the day’s weather is posted to chat. You can choose who sees it (e.g. GM only, all players).
+- **Details:** message shape, speaker aliases, and **Weather FX** behaviour are documented under **Weather generation, scene effects, and chat (DSLF — default)** below.
+
+### Module update notices
+
+- When the module ships a notice for a new version (see **`MODULE_METADATA.noticeVersions`** and `templates/notices/<version>.html`), the **GM** client posts **one chat message** per notice version (speaker **`wctrl.notice.ChatSpeaker`**), **not** a popup dialog. Each version is shown **once per world**; the next notice appears after you upgrade to a release that adds a new notice version.
 
 ### Player visibility
 
@@ -65,26 +90,65 @@ This module has been **adapted for use with Warhammer Fantasy Roleplay (WFRP)** 
 
 ---
 
-## Rules of operation and weather tables
+## Weather generation, scene effects, and chat (DSLF — default)
 
-This section describes how weather is generated, the tables used, and where the design is based on.
+**Default mode** is **Deft Steps, Light Fingers (DSLF)** from the WFRP book *Deft Steps, Light Fingers* (summary in **Weather rules at a glance** above). The module rolls **1d10** separately for **Temperature**, **Precipitation**, **Visibility**, and **Wind**, adds the same modifiers to each roll (Summer **+0**; Spring and Autumn **+2**; Winter **+4**; optional **+2** each for **colder climate** and **high altitude** in settings), and maps each modified total to a row of the four-column table (bands such as Sweltering–Bitter, None–Very Heavy precipitation, Clear–Thick Fog, Still–Very Strong wind). A numeric **°F** value is stored for the temperature band and **clamped** to the current season’s min–max range for display and for the rules below.
 
-### How weather is generated
+### DSLF → Foundry canvas (`WeatherEffects`)
 
-1. **Season**:  
-   - If the GM chose **Auto**, the module uses Simple Calendar’s **current season** (by name; it maps names containing “spring”, “summer”, “autumn”/“fall”, “winter” to the four canonical seasons).  
-   - If the GM chose a fixed season (Spring, Summer, Autumn, Winter), that season is used and the calendar is not consulted for season.
+Weather Control builds a list of effects and applies them with the scene **`WeatherEffects`** layer: **`initializeEffects`** on Foundry **v14+**, or legacy **`_setWeather`** if needed.
 
-2. **Temperature**:  
-   - A **seasonal temperature profile** (base, min, max in °F) is chosen for that season (see table below).  
-   - The new day’s temperature is a small random step from the previous day’s temperature, with a chance to drift toward the seasonal base, then **clamped** to the season’s min–max range.  
-   - Profiles are validated against **German** historical seasonal data (**Deutscher Wetterdienst, DWD**, start of nationwide measurements **1881**). The module stores values in °F; display can be set to °C.
+| Rule | Behaviour |
+|------|-----------|
+| **Precipitation = None** | No **rain** or **snow** particles from the precipitation column. (Fog or mist from **Visibility** is separate.) |
+| **Precipitation = Light, Heavy, or Very heavy** | **Snow** when the **Temperature** column is **Chilly** or **Bitter** (any of these precip bands). For **Sweltering**, **Hot**, or **Comfortable**, **snow** only when stored **°F** is **below 32**; otherwise **rain**. Intensity increases from **light** through **heavy** to **very heavy**. **Very heavy** **snow** also adds an extra **clouds** layer. |
+| **Visibility = Clear** | No extra fog/mist layer from visibility. |
+| **Visibility = Mist** | Adds a **clouds**-style fog layer (lighter density/tint). |
+| **Visibility = Thick fog** | Adds a denser **clouds** fog layer. |
+| **Wind** | Sets particle **speed** for fog, clouds, and precip: **Still** 22, **Light** 35, **Medium** 50, **Strong** 68, **Very strong** 85 (string values consumed by the Foundry weather layer). |
 
-3. **Weather category (1d100)**:  
-   - The module rolls **1d100** and uses the **seasonal weather table** for the current season to get a category: **Dry**, **Fair**, **Rain**, **Downpour**, **Snow**, or **Blizzard**.
+### Chat messages (DSLF)
 
-4. **Precipitation and description**:  
-   - The category is converted into an internal roll range; the existing **precipitation generator** then produces the specific description (e.g. “Light rain”, “Heavy snow”, “Blizzard”) and, if used, FXMaster-style effects. Special cases (e.g. volcanic) are still supported.
+When **Output weather to chat** is enabled, the **first** message has this shape:
+
+`<b>{temperature}</b> - {description}`
+
+- **`{temperature}`** — user-facing °C or °F string from module settings.  
+- **`{description}`** — three segments joined by **`; `** (semicolon + space): **precipitation**, **visibility**, **wind**, each localized (DSLF labels).
+
+If the **Temperature** column is **Chilly** or **Bitter**, the **precipitation** segment is replaced by **legacy-style** full sentences from **`wctrl.weather.tracker.normal.*`** (e.g. Blizzard, Heavy Snow, large/light snowfall wording) so third-party tools can match **snow**-related keywords in chat. Other temperature bands keep the short DSLF precipitation labels for that segment.
+
+- **Speaker** for the first message: localized alias **`wctrl.weather.tracker.Today`**.
+
+**Optional second message** (setting **Post WFRP detail message after weather chat**, default on): HTML summary aligned with the panel plus WFRP mechanical reminders. **Speaker:** **`wctrl.dslf.chatDetailSpeaker`**. Parsers and **Weather FX** should use **only** the **first** message for the weather line.
+
+### Weather FX (optional module)
+
+**[Weather FX](https://github.com/ricardopiloto/weatherfx)** can read chat and sync effects. **Weather Control does not require Weather FX** to apply scene weather — the canvas rules above are applied by this module directly. Weather FX integration is typically based on the **first** chat line when the speaker matches **`wctrl.weather.tracker.Today`**; ignore the optional detail message (different **`wctrl.dslf.chatDetailSpeaker`** alias). Behaviour may depend on Weather FX version and language; see that module’s documentation.
+
+**DSLF compatibility:** Reference scripts for a Weather FX release aligned with DSLF (ignore detail speaker, HTML-safe parsing, **`weatherData.dslf`**-driven line, heavy-snow effect) live in **`contrib/weatherfx-sync/`** in this repository — copy them into the **weatherfx** `scripts/` folder when publishing an updated **weatherfx** build.
+
+---
+
+## Legacy Enemy in Shadows (optional setting)
+
+When **“Use legacy Enemy in Shadows weather (1d100)”** is enabled in module settings, **DSLF is not used** for that generation path. This is the **original Weather Control** flow based on the *Enemy in Shadows Companion* seasonal **1d100** table and **`PrecipitationGenerator.generate`**.
+
+### Generation pipeline (legacy)
+
+1. **Season** — same as DSLF: **Auto** from Simple Calendar (names mapped to spring/summer/autumn/winter) or a **fixed** season.  
+2. **Temperature** — **DWD**-style seasonal **random walk** in **°F** within the season’s min–max (see table below).  
+3. **Weather category** — roll **1d100** on the **seasonal** table → **Dry**, **Fair**, **Rain**, **Downpour**, **Snow**, or **Blizzard**.  
+4. **Internal roll** — the category maps to an internal roll range (`mapCategoryToInternalRoll`); **`PrecipitationGenerator.generate(roll, weatherData)`** returns the localized description string and builds **rain** / **snow** / **clouds** (and related) effects for **`WeatherEffects`**.  
+5. **Fallback** — if the season cannot be resolved, a **1d20** roll drives **`generate`** instead of the 1d100 path (logged for debugging).
+
+### Chat (legacy)
+
+With **Output weather to chat** enabled, **`WeatherTracker.output()`** sends **one** message per generation: **`<b>{temperature}</b> - {description}`** where `{description}` is a **single** localized precipitation line (**`wctrl.weather.tracker.normal.*`** and related keys). **Speaker:** **`wctrl.weather.tracker.Today`**. There is **no** optional second DSLF card and no **`wctrl.dslf.chatDetailSpeaker`** message.
+
+### Canvas (legacy — `generate`)
+
+Effects come from **`PrecipitationGenerator.generate`**: branches depend on the **internal roll** and **numeric °F** (including thresholds near **25 °F** and **32 °F** for mixed winter precipitation), plus **volcanic** climate when the world’s climate is flagged. **Wind** is **not** chosen from a DSLF column in this mode. For exact branches, see **`generate`** in `scripts/weather/PrecipitationGenerator.js`.
 
 ### Seasonal weather table (1d100)
 
@@ -104,9 +168,9 @@ Roll **1d100** and compare to the ranges below for the chosen season. “00” i
 - **Autumn**: Rain and downpour; late autumn can show snow.  
 - **Winter**: Fair and snow dominate; short downpour range; blizzard on high rolls.
 
-### Temperature profiles (Germany reference, DWD from 1881)
+### Temperature profiles (legacy random walk, Germany / DWD from 1881)
 
-Daily temperature is generated around a **base** and clamped to **min**–**max** for the season. All values in °F (module converts to °C for display if the option is set). **Winter** is about -5 to 5°C; **Summer** is about 20 to 30°C.
+Daily temperature is generated around a **base** and clamped to **min**–**max** for the season. Values in **°F** (module can display **°C**). **Winter** is about -5 to 5°C; **Summer** is about 20 to 30°C.
 
 | Season | Base (°F) | Min (°F) | Max (°F) | Approx. °C   |
 |--------|-----------|----------|----------|--------------|
@@ -115,22 +179,25 @@ Daily temperature is generated around a **base** and clamped to **min**–**max*
 | Summer | 77        | 68       | 86       | ≈ 20 to 30°C |
 | Autumn | 50        | 41       | 59       | ≈ 5 to 15°C  |
 
-Source: **Germany**, historical seasonal data. **Deutscher Wetterdienst (DWD)** provides systematic measurements from **1881** (start of nationwide records). The ranges allow day-to-day variation while staying within plausible seasonal bounds for Central European / Old World settings.
+Source: **Germany**, historical seasonal data. **Deutscher Wetterdienst (DWD)** provides systematic measurements from **1881** (start of nationwide records).
 
-### Where this is based on
+### Where legacy tables come from
 
-- **Seasonal 1d100 category table**: Based on the seasonal weather table from **Warhammer Fantasy Roleplay 4E – Enemy in Shadows Companion**, providing seasonal variety (dry/fair/rain/downpour/snow/blizzard) for Old World-style climates.
-- **Temperature**: German historical reference (DWD, from 1881) as above, suitable for Old World and similar settings.
-- **WFRP / Enemy in Shadows**: This module is **adapted for Warhammer Fantasy Roleplay (WFRP)** and tuned around the weather assumptions in the *Enemy in Shadows* campaign. The seasonal tables and temperature logic are intended for use in WFRP and other European-style fantasy campaigns that use or inspire from those rules.
+- **Seasonal 1d100 category table**: **Warhammer Fantasy Roleplay 4E – Enemy in Shadows Companion**.  
+- **Temperature random walk**: German reference (DWD, from 1881), suitable for Old World–style campaigns.  
+- **WFRP**: This module is **adapted for Warhammer Fantasy Roleplay (WFRP)** and tuned around *Enemy in Shadows* assumptions.
 
 ---
 
 ## Configuration (settings)
 
+- **Use legacy Enemy in Shadows weather (1d100)**: When enabled, weather uses the **1d100** seasonal table and DWD-style temperature walk instead of **DSLF** (default off).
 - **Calendar Display for Non-GM**: Whether non-GM users see the calendar/weather panel.
 - **Can Players see weather information**: Whether players can open the weather panel (read-only).
 - **Output weather to chat**: Whether generated weather is posted to chat (and who sees it).
+- **Post WFRP detail message after weather chat (DSLF)**: Optional second chat message with panel HTML and mechanical reminders.
 - **Use Celcius**: Display temperature in °C instead of °F.
+- **DSLF colder climate** / **DSLF high altitude**: Optional **+2** each to every DSLF column roll (per book).
 - **Scene Weather Effects** (if FXMaster is present): Toggle scene weather effects driven by the module.
 - **Scene Night Cycle** / **Disable Global Illumination at Night**: Optional lighting behaviour; see in-game tooltips.
 

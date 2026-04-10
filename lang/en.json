@@ -49,6 +49,14 @@
   "wctrl.settings.OutputWeatherToChatHelp": "Select who can see the weather messages in chat.",
   "wctrl.settings.WeatherLabel": "Scene Weather Effects",
   "wctrl.settings.WeatherLabelHelp": "When checked, if the FXMaster module is installed, it will generate weather effects such as rain and clouds.",
+  "wctrl.settings.legacyEnemyInShadowsWeather": "Use legacy Enemy in Shadows weather (1d100)",
+  "wctrl.settings.legacyEnemyInShadowsWeatherHelp": "When enabled, uses the seasonal 1d100 table and DWD-style temperature walk. When disabled (default), uses Deft Steps, Light Fingers: four 1d10 rolls (Temperature, Precipitation, Visibility, Wind) with book modifiers.",
+  "wctrl.settings.dslfColderClimate": "DSLF: colder climate (+2 to each roll)",
+  "wctrl.settings.dslfColderClimateHelp": "Adds +2 to each of the four d10 rolls before consulting the Deft Steps, Light Fingers table (colder climates).",
+  "wctrl.settings.dslfHighAltitude": "DSLF: high altitude (+2 to each roll)",
+  "wctrl.settings.dslfHighAltitudeHelp": "Adds +2 to each of the four d10 rolls (high altitude). Stacks with colder climate.",
+  "wctrl.settings.postDslfDetailChat": "Post WFRP detail message after weather chat (DSLF)",
+  "wctrl.settings.postDslfDetailChatHelp": "When enabled, sends a second chat message with the four-column summary and mechanical reminders. The first message stays a single line for tools like Weather FX.",
 
   "wctrl.time.Advance15minutes": "Advance 15 minutes",
   "wctrl.time.Advance1hour": "Advance 1 hour",
@@ -110,6 +118,7 @@
   "wctrl.weather.tracker.normal.Earthquake": "Earthquake, firey rain, and toxic gases today.",
   "wctrl.weather.tracker.normal.FireyRain": "Firey rain today, take cover.",
   "wctrl.weather.tracker.normal.HeavyRain": "Heavy Rain today.",
+  "wctrl.weather.tracker.normal.HeavySnow": "Heavy snowfall today.",
   "wctrl.weather.tracker.normal.Icestorm": "Icestorm today.",
   "wctrl.weather.tracker.normal.LargeFreezingRain": "Large amount of freezing rain today.",
   "wctrl.weather.tracker.normal.LargeSnow": "Large amount of snowfall today.",
@@ -124,5 +133,48 @@
   "wctrl.weather.tracker.normal.TorrentialRain": "Torrential rains today.",
   "wctrl.weather.tracker.Today": "Today's Weather:",
 
-  "wctrl.notice.Acknowledge": "Got it! Don't show this again."
+  "wctrl.dslf.label.temperature": "Temperature:",
+  "wctrl.dslf.label.precipitation": "Precipitation:",
+  "wctrl.dslf.label.visibility": "Visibility:",
+  "wctrl.dslf.label.wind": "Wind:",
+
+  "wctrl.dslf.sweltering": "Sweltering",
+  "wctrl.dslf.hot": "Hot",
+  "wctrl.dslf.comfortable": "Comfortable",
+  "wctrl.dslf.chilly": "Chilly",
+  "wctrl.dslf.bitter": "Bitter",
+
+  "wctrl.dslf.precip.none": "None",
+  "wctrl.dslf.precip.light": "Light",
+  "wctrl.dslf.precip.heavy": "Heavy",
+  "wctrl.dslf.precip.very_heavy": "Very Heavy",
+
+  "wctrl.dslf.vis.clear": "Clear",
+  "wctrl.dslf.vis.mist": "Mist",
+  "wctrl.dslf.vis.thick_fog": "Thick Fog",
+
+  "wctrl.dslf.wind.still": "Still",
+  "wctrl.dslf.wind.light": "Light",
+  "wctrl.dslf.wind.medium": "Medium",
+  "wctrl.dslf.wind.strong": "Strong",
+  "wctrl.dslf.wind.very_strong": "Very Strong",
+
+  "wctrl.dslf.chatDetailSpeaker": "Weather details (WFRP)",
+
+  "wctrl.dslf.mechanical.temp.sweltering": "Sweltering: drink 2 gallons of water/day; Challenging (+0) Endurance test (heat); unprepared: 2 tests per stage.",
+  "wctrl.dslf.mechanical.temp.hot": "Hot: drink 1 gallon of water/day; test for heat exposure once per stage (see core rules).",
+  "wctrl.dslf.mechanical.temp.comfortable": "Comfortable: no special temperature tests.",
+  "wctrl.dslf.mechanical.temp.chilly": "Chilly: without warm clothing, Challenging (+0) Endurance vs cold exposure; retest at night without camp/fire.",
+  "wctrl.dslf.mechanical.temp.bitter": "Bitter: cold exposure tests (at least once; twice if ill-equipped); need shelter and fire; gloves or −2 SL to Dex tests (gloves).",
+
+  "wctrl.dslf.mechanical.precip.none": "Precipitation may impose −10% to Endurance vs cold exposure when combined with cold rain/snow.",
+  "wctrl.dslf.mechanical.precip.light": "Light precipitation: −1 SL to Athletics, Climb, and Ranged (Blackpowder) tests.",
+  "wctrl.dslf.mechanical.precip.heavy": "Heavy precipitation: −2 SL to Athletics, Climb, and Ranged (Blackpowder) tests.",
+  "wctrl.dslf.mechanical.precip.very_heavy": "Very heavy precipitation: −3 SL to Athletics, Climb, and Ranged (Blackpowder); −1 SL to all other tests.",
+
+  "wctrl.dslf.mechanical.traitNote": "Apply traits (e.g. Amphibious, Undead, Construct) per the rulebook; this module does not automate them.",
+
+  "wctrl.notice.Title": "Weather Control update",
+  "wctrl.notice.Acknowledge": "Got it! Don't show this again.",
+  "wctrl.notice.ChatSpeaker": "Weather Control"
 }

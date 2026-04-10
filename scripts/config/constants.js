@@ -3,9 +3,9 @@ export const MODULE_METADATA = {
   id: "weather-control",
   globalName: "WeatherControl",
   title: "Weather Control",
-  version: "4.1.9",
+  version: "4.3.0",
   // Versions which have update notices defined
-  noticeVersions: ["4.0.1"],
+  noticeVersions: ["4.3.0"],
 };
 
 // Hook event names used by Simple Calendar
@@ -63,5 +63,13 @@ export const SETTING_KEYS = {
   useCelcius: "useCelcius",
   weatherData: "weatherData",
   windowPosition: "windowPosition",
+  /** When true, use Enemy in Shadows 1d100 + legacy temperature walk. When false (default), use Deft Steps, Light Fingers (4×d10). */
+  legacyEnemyInShadowsWeather: "legacyEnemyInShadowsWeather",
+  /** DSLF: +2 to each of the four d10 rolls (colder climate). */
+  dslfColderClimate: "dslfColderClimate",
+  /** DSLF: +2 to each of the four d10 rolls (high altitude). */
+  dslfHighAltitude: "dslfHighAltitude",
+  /** When true, post a second DSLF chat message with panel summary + WFRP mechanical notes (first message stays WeatherFX-friendly). */
+  postDslfDetailChat: "postDslfDetailChat",
 };
 
