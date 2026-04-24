@@ -35,6 +35,7 @@ export class ModuleSettings {
     return new WeatherData({
       ...raw,
       selectedSeason: raw?.selectedSeason ?? "auto",
+      dslf: raw?.dslf ?? null,
     });
   }
 
@@ -66,12 +67,36 @@ export class ModuleSettings {
     return this.get(SETTING_KEYS.playerSeeWeatherInfo);
   }
 
+  /** @returns {boolean} — When true, use legacy Enemy in Shadows 1d100 + DWD temperature. Default false (DSLF). */
+  getLegacyEnemyInShadowsWeather() {
+    return !!this.get(SETTING_KEYS.legacyEnemyInShadowsWeather);
+  }
+
+  /** @returns {boolean} — DSLF: +2 to each d10 roll (colder climate). */
+  getDslfColderClimate() {
+    return !!this.get(SETTING_KEYS.dslfColderClimate);
+  }
+
+  /** @returns {boolean} — DSLF: +2 to each d10 roll (high altitude). */
+  getDslfHighAltitude() {
+    return !!this.get(SETTING_KEYS.dslfHighAltitude);
+  }
+
+  /** @returns {boolean} — Post second chat card with DSLF details + rules (default true). */
+  getPostDslfDetailChat() {
+    const v = this.get(SETTING_KEYS.postDslfDetailChat);
+    return v !== false;
+  }
+
   getListOfReadNoticesVersions() {
     return this.get(SETTING_KEYS.noticeVersion);
   }
 
   addVersionToReadNotices(version) {
     const list = this.getListOfReadNoticesVersions();
+    if (list.includes(version)) {
+      return;
+    }
     list.push(version);
     this.set(SETTING_KEYS.noticeVersion, list);
   }
@@ -156,6 +181,42 @@ export class ModuleSettings {
       default: false,
       type: Boolean,
     });
+
+    this.register(SETTING_KEYS.legacyEnemyInShadowsWeather, {
+      name: this.gameRef.i18n.localize("wctrl.settings.legacyEnemyInShadowsWeather"),
+      hint: this.gameRef.i18n.localize("wctrl.settings.legacyEnemyInShadowsWeatherHelp"),
+      scope: "world",
+      config: true,
+      default: false,
+      type: Boolean,
+    });
+
+    this.register(SETTING_KEYS.dslfColderClimate, {
+      name: this.gameRef.i18n.localize("wctrl.settings.dslfColderClimate"),
+      hint: this.gameRef.i18n.localize("wctrl.settings.dslfColderClimateHelp"),
+      scope: "world",
+      config: true,
+      default: false,
+      type: Boolean,
+    });
+
+    this.register(SETTING_KEYS.dslfHighAltitude, {
+      name: this.gameRef.i18n.localize("wctrl.settings.dslfHighAltitude"),
+      hint: this.gameRef.i18n.localize("wctrl.settings.dslfHighAltitudeHelp"),
+      scope: "world",
+      config: true,
+      default: false,
+      type: Boolean,
+    });
+
+    this.register(SETTING_KEYS.postDslfDetailChat, {
+      name: this.gameRef.i18n.localize("wctrl.settings.postDslfDetailChat"),
+      hint: this.gameRef.i18n.localize("wctrl.settings.postDslfDetailChatHelp"),
+      scope: "world",
+      config: true,
+      default: true,
+      type: Boolean,
+    });
   }
 
   createDefaultWeatherData() {
@@ -169,7 +230,8 @@ export class ModuleSettings {
       selectedSeason: "auto",
       temp: null,
       tempRange: null,
-      version: 1,
+      dslf: null,
+      version: 2,
     });
   }
 }

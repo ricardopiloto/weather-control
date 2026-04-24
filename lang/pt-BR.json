@@ -110,6 +110,7 @@
   "wctrl.weather.tracker.normal.Earthquake": "Terremoto, chuva forte e gases tóxicos hoje.",
   "wctrl.weather.tracker.normal.FireyRain": "Chuva forte hoje, se proteja.",
   "wctrl.weather.tracker.normal.HeavyRain": "Chuva forte hoje.",
+  "wctrl.weather.tracker.normal.HeavySnow": "Neve forte hoje.",
   "wctrl.weather.tracker.normal.Icestorm": "Tempestade de Gelo.",
   "wctrl.weather.tracker.normal.LargeFreezingRain": "Grande quantidade de granizo hoje.",
   "wctrl.weather.tracker.normal.LargeSnow": "Grande quantidade de chuva fria hoje.",
@@ -124,5 +125,10 @@
   "wctrl.weather.tracker.normal.TorrentialRain": "Chuvas torrenciais hoje.",
   "wctrl.weather.tracker.Today": "Clima de Hoje:",
 
-  "wctrl.notice.Acknowledge": "Entendi! Não mostre novamente."
+  "wctrl.notice.Title": "Atualização do Weather Control",
+  "wctrl.notice.Acknowledge": "Entendi! Não mostre novamente.",
+  "wctrl.notice.ChatSpeaker": "Weather Control",
+  "wctrl.settings.postDslfDetailChat": "Enviar mensagem detalhada WFRP após o clima no chat (DSLF)",
+  "wctrl.settings.postDslfDetailChatHelp": "Quando ativo, envia uma segunda mensagem com o resumo das quatro colunas e lembretes mecânicos. A primeira mensagem permanece numa linha para ferramentas como o Weather FX.",
+  "wctrl.dslf.chatDetailSpeaker": "Detalhes do clima (WFRP)"
 }

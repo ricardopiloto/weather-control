@@ -110,6 +110,7 @@
   "wctrl.weather.tracker.normal.Earthquake": "今天有地震、火雨和有毒气体。",
   "wctrl.weather.tracker.normal.FireyRain": "今天有火雨，请注意躲避。",
   "wctrl.weather.tracker.normal.HeavyRain": "今天有暴雨。",
+  "wctrl.weather.tracker.normal.HeavySnow": "今天降雪很强。",
   "wctrl.weather.tracker.normal.Icestorm": "冰暴来袭。",
   "wctrl.weather.tracker.normal.LargeFreezingRain": "今天有大冻雨。",
   "wctrl.weather.tracker.normal.LargeSnow": "今天有大雪。",
@@ -124,5 +125,6 @@
   "wctrl.weather.tracker.normal.TorrentialRain": "暴雨倾盆而下。",
   "wctrl.weather.tracker.Today": "今天的天气：",
 
+  "wctrl.notice.Title": "Weather Control 更新",
   "wctrl.notice.Acknowledge": "了解了！不要再显示了！"
 }

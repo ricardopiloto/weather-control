@@ -17,6 +17,17 @@ export class WeatherData {
     /** "auto" | "spring" | "summer" | "autumn" | "winter" — which season to use for weather generation (default "auto" = use Simple Calendar). */
     this.selectedSeason = "auto";
 
+    /**
+     * Deft Steps, Light Fingers roll snapshot (when using DSLF table). Null when using legacy Enemy in Shadows flow.
+     * @type {null | {
+     *   rolls: { t: number, p: number, v: number, w: number },
+     *   modified: { t: number, p: number, v: number, w: number },
+     *   columns: { temperature: string, precipitation: string, visibility: string, wind: string },
+     *   mechanicalNotes?: string
+     * }}
+     */
+    this.dslf = null;
+
     Object.assign(this, data);
   }
 

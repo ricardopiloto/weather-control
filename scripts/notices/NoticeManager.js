@@ -1,5 +1,6 @@
 import { TemplateUtils } from "../utils/TemplateUtils.js";
 import { SemverUtils } from "../utils/SemverUtils.js";
+import { chatProxy } from "../utils/ChatProxy.js";
 
 /**
  * Handles display of update notices to the user.
@@ -18,7 +19,7 @@ export class NoticeManager {
       !this.noticeForCurrentVersionWasRead() &&
       (await this.noticeFileExistsForCurrentVersion())
     ) {
-      this.spawnNotice(this.moduleSettings.getVersion());
+      await this.spawnNotice(this.moduleSettings.getVersion());
       return;
     }
 
@@ -31,7 +32,7 @@ export class NoticeManager {
       return;
     }
 
-    this.spawnNotice(this.getPreviousVersion());
+    await this.spawnNotice(this.getPreviousVersion());
   }
 
   noticeFileExistsForCurrentVersion() {
@@ -68,34 +69,25 @@ export class NoticeManager {
     return sorted.filter((v) => v !== this.moduleSettings.getVersion())[0];
   }
 
-  spawnNotice(version) {
+  /**
+   * Post notice HTML to chat once per version (no modal).
+   * @param {string} version — notice template semver (e.g. 4.3.0)
+   */
+  async spawnNotice(version) {
     const path = this.getPathOfNotice(version);
-
-    TemplateUtils.renderTemplate(path).then((html) => {
-      new Dialog(
-        {
-          title: "Weather Control Update",
-          content: html,
-          buttons: {
-            yes: {
-              icon: '<i class="fas fa-check"></i>',
-              label: this.gameRef.i18n.localize("wctrl.notice.Acknowledge"),
-              callback: () => this.markNoticeAsSeen(),
-            },
-          },
-          default: "yes",
-        },
-        {
-          width: 600,
-          height: 700,
-          classes: ["wctrlDialog"],
-        },
-      ).render(true);
+    const html = await TemplateUtils.renderTemplate(path);
+    await chatProxy.create({
+      user: this.gameRef.user.id,
+      speaker: {
+        alias: this.gameRef.i18n.localize("wctrl.notice.ChatSpeaker"),
+      },
+      content: html,
     });
+    this.markNoticeAsSeen(version);
   }
 
-  markNoticeAsSeen() {
-    this.moduleSettings.addVersionToReadNotices(this.moduleSettings.getVersion());
+  markNoticeAsSeen(version) {
+    this.moduleSettings.addVersionToReadNotices(version);
   }
 
   async noticeFileExists(version) {
@@ -111,4 +103,3 @@ export class NoticeManager {
     return `modules/${this.moduleSettings.getModuleName()}/templates/notices/${version}.html`;
   }
 }
-

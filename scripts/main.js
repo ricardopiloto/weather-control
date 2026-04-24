@@ -5,6 +5,7 @@ import { SemverUtils } from "./utils/SemverUtils.js";
 import { ModuleSettings } from "./settings/ModuleSettings.js";
 import { MigrationManager } from "./migrations/MigrationManager.js";
 import { MigrationV1 } from "./migrations/migrations/MigrationV1.js";
+import { MigrationV2 } from "./migrations/migrations/MigrationV2.js";
 import { NoticeManager } from "./notices/NoticeManager.js";
 import { chatProxy } from "./utils/ChatProxy.js";
 import { WeatherController } from "./controller/WeatherController.js";
@@ -64,11 +65,12 @@ Hooks.once("simple-calendar-ready", () => {
 
   if (game.user.isGM) {
     const noticeManager = new NoticeManager(game, settings);
-    noticeManager.checkForNotices();
+    void noticeManager.checkForNotices();
   }
 
   const migrationManager = new MigrationManager();
   migrationManager.register(new MigrationV1());
+  migrationManager.register(new MigrationV2());
 
   const data = settings.getWeatherData();
   const migrated = migrationManager.run(data.version, data);

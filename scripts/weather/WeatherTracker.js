@@ -4,6 +4,12 @@ import {
 } from "../config/constants.js";
 import { ClimateData } from "../models/ClimateData.js";
 import { WeatherData } from "../models/WeatherData.js";
+import {
+  DSLF_TABLE_ROWS,
+  DSLF_TEMP_FAHRENHEIT,
+  dslfRowIndex,
+  dslfSeasonModifier,
+} from "./DslfWeatherTable.js";
 import { PrecipitationGenerator } from "./PrecipitationGenerator.js";
 import { chatProxy } from "../utils/ChatProxy.js";
 import { fahrenheitToCelsius } from "../utils/TemperatureUtils.js";
@@ -35,6 +41,125 @@ export class WeatherTracker {
    * Generate weather. seasonOrAuto: "auto" (use Simple Calendar) or "spring"|"summer"|"autumn"|"winter" (override).
    */
   generate(seasonOrAuto) {
+    if (this.settings.getLegacyEnemyInShadowsWeather()) {
+      return this.generateLegacyEnemyInShadows(seasonOrAuto);
+    }
+    return this.generateDslf(seasonOrAuto);
+  }
+
+  /**
+   * Deft Steps, Light Fingers: four separate 1d10 rolls + modifiers, then canvas + display.
+   */
+  generateDslf(seasonOrAuto) {
+    if (!this.weatherData.climate) {
+      this.weatherData.climate = this.getClimateData(CLIMATE_TYPE.temperate);
+    }
+
+    const overrideSeason =
+      seasonOrAuto && seasonOrAuto !== "auto" ? seasonOrAuto : null;
+
+    let canonicalSeason = overrideSeason;
+    if (!canonicalSeason && SimpleCalendarAPI.isAvailable()) {
+      try {
+        const s = SimpleCalendarAPI.getCurrentSeason();
+        const name = s?.name ?? s?.label;
+        if (name) canonicalSeason = this.mapSeasonNameToCanonical(name);
+      } catch (_) {
+        // ignore
+      }
+    }
+    if (!canonicalSeason) {
+      logger.warn(
+        "DSLF weather: season unavailable; using spring modifiers for rolls.",
+      );
+      canonicalSeason = "spring";
+    }
+
+    const seasonMod = dslfSeasonModifier(canonicalSeason);
+    let envMod = 0;
+    if (this.settings.getDslfColderClimate()) envMod += 2;
+    if (this.settings.getDslfHighAltitude()) envMod += 2;
+
+    const rollT = this.rand(1, 10);
+    const rollP = this.rand(1, 10);
+    const rollV = this.rand(1, 10);
+    const rollW = this.rand(1, 10);
+
+    const modT = rollT + seasonMod + envMod;
+    const modP = rollP + seasonMod + envMod;
+    const modV = rollV + seasonMod + envMod;
+    const modW = rollW + seasonMod + envMod;
+
+    const iT = dslfRowIndex(modT);
+    const iP = dslfRowIndex(modP);
+    const iV = dslfRowIndex(modV);
+    const iW = dslfRowIndex(modW);
+
+    const rowT = DSLF_TABLE_ROWS[iT];
+    const rowP = DSLF_TABLE_ROWS[iP];
+    const rowV = DSLF_TABLE_ROWS[iV];
+    const rowW = DSLF_TABLE_ROWS[iW];
+
+    const columns = {
+      temperature: rowT.temperature,
+      precipitation: rowP.precipitation,
+      visibility: rowV.visibility,
+      wind: rowW.wind,
+    };
+
+    const profile = this.getSeasonalTemperatureProfile(overrideSeason);
+    let tempF = DSLF_TEMP_FAHRENHEIT[columns.temperature];
+    if (
+      profile &&
+      typeof profile.min === "number" &&
+      typeof profile.max === "number"
+    ) {
+      tempF = Math.min(profile.max, Math.max(profile.min, tempF));
+    }
+    this.weatherData.temp = tempF;
+    this.weatherData.lastTemp = tempF;
+    this.weatherData.tempRange = { max: profile.max, min: profile.min };
+    this.weatherData.dslf = {
+      rolls: { t: rollT, p: rollP, v: rollV, w: rollW },
+      modified: { t: modT, p: modP, v: modV, w: modW },
+      columns: { ...columns },
+    };
+
+    logger.debug(
+      "DSLF weather: season=%s mod=%s env=%s rolls=%s/%s/%s/%s → columns=%o",
+      canonicalSeason,
+      seasonMod,
+      envMod,
+      rollT,
+      rollP,
+      rollV,
+      rollW,
+      columns,
+    );
+
+    const { displayHtml, mechanicalNotes } = this.precipitations.generateDslf(
+      columns,
+      this.weatherData,
+      { temperatureDisplay: this.getTemperature() },
+    );
+    this.weatherData.dslf.mechanicalNotes = mechanicalNotes;
+    // Panel: four-line DSLF summary (HTML)
+    this.weatherData.precipitation = displayHtml;
+
+    if (this.settings.getOutputWeatherToChat()) {
+      void this.outputDslf();
+    }
+
+    this.setWeatherData(this.weatherData);
+    return this.weatherData;
+  }
+
+  /**
+   * Legacy: Enemy in Shadows seasonal 1d100 + DWD-style temperature random walk.
+   */
+  generateLegacyEnemyInShadows(seasonOrAuto) {
+    this.weatherData.dslf = null;
+
     // Ensure climate data exists for non-temperature concerns (e.g., volcanic flag)
     if (!this.weatherData.climate) {
       this.weatherData.climate = this.getClimateData(CLIMATE_TYPE.temperate);
@@ -114,6 +239,44 @@ export class WeatherTracker {
     this.setWeatherData(this.weatherData);
 
     return this.weatherData;
+  }
+
+  async outputDslf() {
+    let recipient = null;
+
+    if (!this.settings.getOutputWeatherToChat()) {
+      recipient = chatProxy.getWhisperRecipients("GM")[0].id;
+    }
+
+    const description = this.precipitations.dslfChatSummaryLine(
+      this.weatherData.dslf.columns,
+      this.weatherData,
+    );
+    const content =
+      "<b>" + this.getTemperature() + "</b> - " + description;
+
+    await chatProxy.create({
+      speaker: {
+        alias: this.gameRef.i18n.localize("wctrl.weather.tracker.Today"),
+      },
+      whisper: [recipient],
+      content,
+    });
+
+    if (
+      this.settings.getPostDslfDetailChat() &&
+      this.weatherData.dslf?.mechanicalNotes
+    ) {
+      const mech = this.weatherData.dslf.mechanicalNotes;
+      const detailContent = `<div>${this.weatherData.precipitation}<br><small class="dslf-mechanical">${mech}</small></div>`;
+      await chatProxy.create({
+        speaker: {
+          alias: this.gameRef.i18n.localize("wctrl.dslf.chatDetailSpeaker"),
+        },
+        whisper: [recipient],
+        content: detailContent,
+      });
+    }
   }
 
   getTemperature() {
