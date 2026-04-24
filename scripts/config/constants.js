@@ -3,7 +3,7 @@ export const MODULE_METADATA = {
   id: "weather-control",
   globalName: "WeatherControl",
   title: "Weather Control",
-  version: "4.3.0",
+  version: "4.3.4",
   // Versions which have update notices defined
   noticeVersions: ["4.3.0"],
 };

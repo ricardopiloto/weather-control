@@ -22,8 +22,11 @@ export class ModuleSettings {
     return MODULE_METADATA.id;
   }
 
+  /** @returns {string} Manifest version (always prefer Foundry’s loaded module over the bundled fallback). */
   getVersion() {
-    return MODULE_METADATA.version;
+    const mod = this.gameRef.modules.get(this.getModuleName());
+    const v = mod?.version;
+    return v ?? MODULE_METADATA.version;
   }
 
   getVersionsWithNotices() {
