@@ -211,6 +211,12 @@ Source: **Germany**, historical seasonal data. **Deutscher Wetterdienst (DWD)** 
 
 ---
 
+## For maintainers (releases)
+
+Publishing a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) triggers the **Release assets** workflow (`.github/workflows/release.yml`). It builds `<id>.zip` from `module.json`’s `id` and attaches that zip plus `module.json` to the release. The manifest’s `manifest` URL already points at `releases/latest/download/module.json`; bump `version` and `download` in `module.json` when you tag a new version.
+
+---
+
 ## License
 
 See the repository or module manifest for license information.

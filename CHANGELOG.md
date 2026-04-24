@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.4] - 2026-04-24
+
+### Added
+
+- **GitHub Actions** workflow **Release assets** (`.github/workflows/release.yml`): on a **published** GitHub Release, builds `<id>.zip` from `module.json` and uploads the zip plus `module.json` to the release.
+- **README:** **For maintainers (releases)** — how releases attach installable assets and `manifest` / `latest` URLs.
+
+### Fixed
+
+- **DSLF (Deft Steps, Light Fingers):** **Rain vs snow** for **light** / **heavy** / **very heavy** precipitation now follows the **stored numeric temperature in °F** (after the seasonal min/max **clamp**), not only the column label. **Chilly** or **bitter** with a **warm** seasonal value (e.g. summer) no longer force **snow** on the canvas or **Heavy Snow**–class **Weather FX** first-line text when the temperature is **at or above 32 °F** (fixes cases such as **chilly** + **heavy** + **strong** in summer reading as **heavy rain** in practice).
+- **`contrib/weatherfx-sync/wc-fn.js`:** `dslfWeatherFxPrecipSegment` uses the same **32 °F** rule so pasted/synced **Weather FX** script matches the module.
+
 ## [4.3.3] - 2026-04-10
 
 ### Added

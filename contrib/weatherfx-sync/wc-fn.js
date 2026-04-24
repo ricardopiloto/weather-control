@@ -129,7 +129,7 @@ export async function dslfChatSummaryLineFromWeatherData(weatherData) {
     const columns = weatherData.dslf.columns;
     const json = await langJson();
     const loc = (k) => json[k] ?? k;
-    const precipLine = dslfWeatherFxPrecipSegment(columns, loc);
+    const precipLine = dslfWeatherFxPrecipSegment(columns, loc, weatherData);
     const parts = [
         precipLine,
         loc(`wctrl.dslf.vis.${columns.visibility}`),
@@ -141,13 +141,32 @@ export async function dslfChatSummaryLineFromWeatherData(weatherData) {
 /**
  * @param {object} columns
  * @param {(k: string) => string} loc
+ * @param {{ temp?: number } | null} [weatherData]
  */
-function dslfWeatherFxPrecipSegment(columns, loc) {
+function dslfWeatherFxPrecipSegment(columns, loc, weatherData) {
     const t = columns.temperature;
     const p = columns.precipitation;
     const w = columns.wind;
     const cold = t === "chilly" || t === "bitter";
     if (!cold) {
+        return loc(`wctrl.dslf.precip.${p}`);
+    }
+    const tempF = weatherData?.temp;
+    const subFreezing =
+        typeof tempF === "number" && Number.isFinite(tempF) && tempF < 32;
+    if (!subFreezing) {
+        if (p === "very_heavy" && w === "very_strong") {
+            return loc("wctrl.weather.tracker.normal.TorrentialRain");
+        }
+        if (p === "heavy" && (w === "strong" || w === "very_strong")) {
+            return loc("wctrl.weather.tracker.normal.HeavyRain");
+        }
+        if (p === "heavy" && (w === "still" || w === "light" || w === "medium")) {
+            return loc("wctrl.weather.tracker.normal.ModerateRainW");
+        }
+        if (p === "light") {
+            return loc("wctrl.weather.tracker.normal.ModerateRainW");
+        }
         return loc(`wctrl.dslf.precip.${p}`);
     }
     if (p === "very_heavy" && w === "very_strong") {

@@ -1,5 +1,7 @@
 .cursor
+.release-dry-run-tmp
+staging/
 AGENTS.md
 project.md
 # Ignore everything under openspec except openspec/specs
-openspec/changes/*
+openspec/

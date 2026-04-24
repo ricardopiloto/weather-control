@@ -250,6 +250,7 @@ export class WeatherTracker {
 
     const description = this.precipitations.dslfChatSummaryLine(
       this.weatherData.dslf.columns,
+      this.weatherData,
     );
     const content =
       "<b>" + this.getTemperature() + "</b> - " + description;

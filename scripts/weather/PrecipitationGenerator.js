@@ -610,14 +610,14 @@ export class PrecipitationGenerator {
 
   /**
    * One-line plain summary for chat (legacy-style parsers, e.g. WeatherFX). No HTML, no rule blurbs.
-   * When Temperature is Chilly or Bitter, snow-like precip uses legacy `wctrl.weather.tracker.normal.*` blurbs
-   * so parsers match blizzard / heavy snow / moderate snow / light snow keywords.
+   * When **chilly** or **bitter** with sub-freezing stored °F, snow blurbs; at/above 32 °F, rain-class blurbs.
    * @param {{ temperature: string, precipitation: string, visibility: string, wind: string }} columns
+   * @param {{ temp?: number } | null} [weatherData] — for chilly/bitter, `weatherData.temp` gates snow vs rain wording
    * @returns {string}
    */
-  dslfChatSummaryLine(columns) {
+  dslfChatSummaryLine(columns, weatherData) {
     const L = (k) => this.gameRef.i18n.localize(k);
-    const precipLine = this._dslfWeatherFxPrecipSegment(columns, L);
+    const precipLine = this._dslfWeatherFxPrecipSegment(columns, L, weatherData);
     const parts = [
       precipLine,
       L(`wctrl.dslf.vis.${columns.visibility}`),
@@ -629,12 +629,31 @@ export class PrecipitationGenerator {
   /**
    * @param {{ temperature: string, precipitation: string, wind: string }} columns
    * @param {function(string): string} L localize (`game.i18n.localize`)
+   * @param {{ temp?: number } | null} [weatherData]
    * @returns {string}
    */
-  _dslfWeatherFxPrecipSegment(columns, L) {
+  _dslfWeatherFxPrecipSegment(columns, L, weatherData) {
     const { temperature: t, precipitation: p, wind: w } = columns;
     const cold = t === "chilly" || t === "bitter";
     if (!cold) {
+      return L(`wctrl.dslf.precip.${p}`);
+    }
+    const tempF = weatherData?.temp;
+    const subFreezing =
+      typeof tempF === "number" && Number.isFinite(tempF) && tempF < 32;
+    if (!subFreezing) {
+      if (p === "very_heavy" && w === "very_strong") {
+        return L("wctrl.weather.tracker.normal.TorrentialRain");
+      }
+      if (p === "heavy" && (w === "strong" || w === "very_strong")) {
+        return L("wctrl.weather.tracker.normal.HeavyRain");
+      }
+      if (p === "heavy" && (w === "still" || w === "light" || w === "medium")) {
+        return L("wctrl.weather.tracker.normal.ModerateRainW");
+      }
+      if (p === "light") {
+        return L("wctrl.weather.tracker.normal.ModerateRainW");
+      }
       return L(`wctrl.dslf.precip.${p}`);
     }
 
@@ -655,7 +674,7 @@ export class PrecipitationGenerator {
   }
 
   /**
-   * Chilly/Bitter + non-none precip uses snow on canvas; warmer bands use below-freezing °F.
+   * **Chilly/Bitter** with precip uses snow on canvas only when stored °F is below 32; otherwise use rain. Other bands use below-freezing °F.
    * @param {{ temperature: string, precipitation: string }} columns
    * @param {{ temp: number }} weatherData
    * @returns {boolean}
@@ -664,14 +683,6 @@ export class PrecipitationGenerator {
     const prec = columns.precipitation;
     if (prec === "none") {
       return false;
-    }
-    const coldBand =
-      columns.temperature === "chilly" || columns.temperature === "bitter";
-    if (
-      coldBand &&
-      (prec === "light" || prec === "heavy" || prec === "very_heavy")
-    ) {
-      return true;
     }
     return weatherData.temp < 32;
   }

@@ -30,18 +30,27 @@ When DSLF weather is active, the system SHALL NOT use the previous **Enemy in Sh
 
 ### Requirement: Numeric temperature compatible with effects
 
-The system SHALL expose a **numeric temperature** (for display and for effect selection) that is **consistent** with the **Temperature** column band (Sweltering through Bitter), so that rain/snow/canvas behaviour matches the chosen band and precipitation column. For **DSLF** canvas precipitation, **snow** vs **rain** for **light**, **heavy**, and **very_heavy** bands SHALL follow the **Temperature** column when it is **chilly** or **bitter** (snow for non-**none** precipitation), and SHALL continue to use numeric °F relative to freezing for **sweltering**, **hot**, and **comfortable** bands as implemented.
+The system SHALL expose a **numeric temperature** in °F (for display and for effect selection) **after** mapping the Deft Steps, Light Fingers **Temperature** column to a base value and **clamping** that value to the **active seasonal temperature range** (e.g. European seasonal bounds). For **DSLF** **canvas** precipitation, **rain** vs **snow** for **light**, **heavy**, and **very_heavy** (when precipitation is not **none**) SHALL be determined from the **stored** numeric **°F** as follows: **rain**-class (liquid) effects when the value is **at or above 32 °F**; **snow**-class (solid) effects when the value is **strictly below 32 °F**. The **column label** (sweltering through **bitter**) SHALL continue to control the displayed band name, the panel lines, and mechanical reminders; the label alone SHALL **not** force snow when the stored numeric value is at or **above** freezing. **Sweltering**, **hot**, and **comfortable** column behaviour for precipitation phase SHALL keep using the same numeric and implementation rules as before this change.
 
-#### Scenario: Bitter band implies cold-weather behaviour
+#### Scenario: Bitter with sub-freezing stored temperature
 
-- **WHEN** the Temperature column resolves to **Bitter**
-- **THEN** the stored numeric temperature SHALL be in a range that yields appropriate cold-weather effects (e.g. snow where applicable) together with the Precipitation column
+- **WHEN** the **Temperature** column is **bitter** and the stored numeric °F after seasonal **clamp** is **strictly below 32** °F
+- **THEN** **light** / **heavy** / **very_heavy** (non-**none**) **SHALL** select **snow**-class effects together with the other columns, consistent with a freezing scene
 
-#### Scenario: Chilly with light precipitation shows snow on canvas
+#### Scenario: Summer or other warm profile with chilly and heavy strong precip
 
-- **WHEN** DSLF columns are **chilly**, **precipitation** is **light**, **visibility** is **mist**, and **wind** is **very_strong**
-- **THEN** the scene weather effects SHALL include **light snow** particles and **mist** fog (clouds) driven by visibility, with **wind** speeds applied per the existing wind-column mapping
-- **AND** the canvas SHALL NOT apply **light rain** solely because the numeric °F value is above 32 when the **Temperature** column is **chilly** and precipitation is **light**
+- **WHEN** the **Temperature** column is **chilly** but the **stored** °F (after **clamp** to a warm **seasonal** range, e.g. **summer**) is **at or above 32** °F, and **precipitation** is **heavy**, **visibility** is **clear**, and **wind** is **strong**
+- **THEN** the canvas **SHALL** apply **rain**-class effects for that precipitation, **not** the heavy-**snow** configuration
+
+#### Scenario: Chilly with light precip below freezing
+
+- **WHEN** the **chilly** band applies, **precipitation** is **light**, and the **stored** °F is **strictly below 32** °F
+- **THEN** the scene **SHALL** use **light** **snow** (not **light** **rain**) together with the visibility and **wind** mappings already defined for the four columns
+
+#### Scenario: Sweltering through comfortable bands
+
+- **WHEN** the **Temperature** column is **sweltering**, **hot**, or **comfortable**
+- **THEN** the precipitation phase **SHALL** follow the same rules as the existing implementation (including °F **below 32** where that path already applies) without unintended regression
 
 ### Requirement: Chat includes WFRP mechanical reminders
 
