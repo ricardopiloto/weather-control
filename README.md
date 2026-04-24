@@ -39,6 +39,28 @@ See **[CHANGELOG.md](./CHANGELOG.md)** for version history.
 
 ---
 
+## Screenshots
+
+All images are in [`assets/`](./assets/).
+
+### Module in Foundry
+
+![Weather Control in the Foundry module list](assets/module.png)
+
+### Screen location (weather panel)
+
+![Weather panel location on the canvas](assets/location.png)
+
+### Module settings
+
+![Weather Control configuration options](assets/configurations.png)
+
+### Output to chat
+
+![Weather line posted to the chat log](assets/chat_output.png)
+
+---
+
 ## Dependencies
 
 | Dependency | Type | Notes |
