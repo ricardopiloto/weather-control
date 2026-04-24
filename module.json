@@ -94,6 +94,12 @@
         "type": "system",
         "manifest": "https://github.com/moo-man/WFRP4e-FoundryVTT/releases/latest/download/system.json",
         "compatibility": {}
+      },
+      {
+        "id": "weatherfx",
+        "type": "module",
+        "manifest": "https://github.com/ricardopiloto/weatherfx/releases/latest/download/module.json",
+        "compatibility": {}
       }
     ]
   }

@@ -67,13 +67,15 @@ All images are in [`assets/`](./assets/).
 |------------|------|--------|
 | **Foundry VTT** | Core | Minimum 13; verified on 14 |
 | **foundryvtt-simple-calendar** or **foundryvtt-simple-calendar-reborn** | Required (one of) | Original: minimum **v1.3.73**. Reborn: **v2.5.3+** ([Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar)). Weather Control will not initialise without one of these. |
-| **FXMaster** | Optional | For scene weather effects (rain, snow, etc.) |
+| **[Weather FX](https://github.com/ricardopiloto/weatherfx)** | Optional (recommended) | Drives **FXMaster**-based effects from Weather Control (chat and/or settings). Not required for this module’s own canvas weather. |
+| **FXMaster** | Optional | Required by **Weather FX** for its canvas workflow; can also be used with Weather Control alone for extra effects (rain, snow, etc.) |
 
 ### Installation
 
 1. Install **Simple Calendar** and meet its requirements.
 2. Install **Weather Control** via the Foundry setup (manifest or manual install).
 3. Enable both modules in your world. Ensure Simple Calendar is configured with a calendar and, if you want seasonal weather, with seasons (e.g. Spring, Summer, Autumn, Winter).
+4. (Optional) Install **[Weather FX](https://github.com/ricardopiloto/weatherfx)** and **FXMaster** if you use that stack to mirror chat-driven weather to FXMaster on the scene; see the Weather FX repository for its setup and **output to chat** in Weather Control.
 
 ---
 
