@@ -13,6 +13,7 @@
   "wctrl.misc.AboutTimeMissingHelp": "El plugin Calendar/Weather requiere AboutTimeThe de Tim Posney para funcionar correctamente",
   "wctrl.misc.Disregard": "Ignorar este mensaje",
   "wctrl.misc.toggleControl": "Conmutar el calendario",
+  "wctrl.misc.CalendarMissing": "Weather Control necesita un módulo de calendario para funcionar correctamente. Activa Simple Calendar, Simple Calendar Reborn o Seasons & Stars.",
 
   "wctrl.seasons.AddSeason": "Agregar una nueva estación",
   "wctrl.seasons.Delete" : "Borrar estación",

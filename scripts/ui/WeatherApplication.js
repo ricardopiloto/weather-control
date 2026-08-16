@@ -1,4 +1,4 @@
-import { SimpleCalendarAPI } from "../calendar/SimpleCalendarAPI.js";
+import { CalendarAPI } from "../calendar/CalendarAPI.js";
 import { WindowDragHandler } from "./WindowDragHandler.js";
 import { fahrenheitToCelsius } from "../utils/TemperatureUtils.js";
 
@@ -83,24 +83,30 @@ export class WeatherApplication extends Application {
   updateClockStatus() {
     if (!this.isTimeManipulationEnabled()) return;
 
-    const status = SimpleCalendarAPI.clockStatus();
+    const status = CalendarAPI.clockStatus();
 
     if (status.started) {
-      this.getElementById("btn-advance_01").classList.add("disabled");
-      this.getElementById("btn-advance_02").classList.add("disabled");
-      this.getElementById("time-running").classList.add("isRunning");
-      this.getElementById("clock-run-indicator").classList.add("isRunning");
+      this.getElementById("btn-advance_01")?.classList.add("disabled");
+      this.getElementById("btn-advance_02")?.classList.add("disabled");
+      this.getElementById("time-running")?.classList.add("isRunning");
+      this.getElementById("clock-run-indicator")?.classList.add("isRunning");
     } else {
-      this.getElementById("btn-advance_01").classList.remove("disabled");
-      this.getElementById("btn-advance_02").classList.remove("disabled");
-      this.getElementById("time-running").classList.remove("isRunning");
-      this.getElementById("clock-run-indicator").classList.remove("isRunning");
+      this.getElementById("btn-advance_01")?.classList.remove("disabled");
+      this.getElementById("btn-advance_02")?.classList.remove("disabled");
+      this.getElementById("time-running")?.classList.remove("isRunning");
+      this.getElementById("clock-run-indicator")?.classList.remove("isRunning");
     }
   }
 
   updateDateTime(dateObject) {
-    document.getElementById("weekday").innerHTML =
-      dateObject.raw.weekdays[dateObject.raw.currentWeekdayIndex];
+    if (!dateObject?.raw || !dateObject?.display) return;
+
+    const weekdayEl = document.getElementById("weekday");
+    const weekdays = dateObject.raw.weekdays || [];
+    if (weekdayEl) {
+      weekdayEl.innerHTML =
+        weekdays[dateObject.raw.currentWeekdayIndex] ?? "";
+    }
     document.getElementById("date").innerHTML = dateObject.display.fullDate;
     document.getElementById(
       "date-num",
@@ -174,16 +180,24 @@ export class WeatherApplication extends Application {
     event.preventDefault();
     event = event || window.event;
 
-    if (!SimpleCalendarAPI.isPrimaryGM()) return;
+    if (!CalendarAPI.isPrimaryGM()) return;
 
-    const status = SimpleCalendarAPI.clockStatus();
+    if (!CalendarAPI.supportsClockToggle()) {
+      this.logger.debug(
+        "Clock toggle is controlled by Seasons & Stars; use its play/pause controls.",
+      );
+      this.updateClockStatus();
+      return;
+    }
+
+    const status = CalendarAPI.clockStatus();
 
     if (status.started) {
       this.logger.debug("Stopping clock");
-      SimpleCalendarAPI.stopClock();
+      CalendarAPI.stopClock();
     } else {
       this.logger.debug("Starting clock");
-      SimpleCalendarAPI.startClock();
+      CalendarAPI.startClock();
     }
 
     this.updateClockStatus();
@@ -207,10 +221,10 @@ export class WeatherApplication extends Application {
   }
 
   listenToTimeSkipButtons(html) {
-    html.find(".advance-btn").on("click", (event) => {
+    html.find(".advance-btn").on("click", async (event) => {
       const increment = event.target.getAttribute("data-increment");
       const unit = event.target.getAttribute("data-unit");
-      SimpleCalendarAPI.changeDate({ [unit]: Number(increment) });
+      await CalendarAPI.changeDate({ [unit]: Number(increment) });
     });
   }
 
@@ -218,4 +232,3 @@ export class WeatherApplication extends Application {
     return this.gameRef.user.isGM;
   }
 }
-

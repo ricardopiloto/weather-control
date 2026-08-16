@@ -8,10 +8,15 @@ export const MODULE_METADATA = {
   noticeVersions: ["4.3.0"],
 };
 
-// Hook event names used by Simple Calendar
+// Hook event names used by calendar providers
 export const HOOK_EVENTS = {
   DateTimeChange: "simple-calendar-date-time-change",
   ClockStartStop: "simple-calendar-clock-start-stop",
+  SeasonsStarsReady: "seasons-stars:ready",
+  SeasonsStarsDateChanged: "seasons-stars:dateChanged",
+  SeasonsStarsTimeAdvancementStarted: "seasons-stars:timeAdvancementStarted",
+  SeasonsStarsTimeAdvancementPaused: "seasons-stars:timeAdvancementPaused",
+  SimpleCalendarReady: "simple-calendar-ready",
 };
 
 // Log level enum (mirrors original numeric values)

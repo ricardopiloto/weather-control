@@ -13,6 +13,7 @@
   "wctrl.misc.AboutTimeMissingHelp": "Calendar/Weather模组需要先安装Tim Posney的About Time模组才能正常运行。.",
   "wctrl.misc.Disregard": "无视这条信息",
   "wctrl.misc.toggleControl": "切换日历",
+  "wctrl.misc.CalendarMissing": "Weather Control 需要日历模块才能正常工作。请启用 Simple Calendar、Simple Calendar Reborn 或 Seasons & Stars。",
 
   "wctrl.seasons.AddSeason": "新增一个季节",
   "wctrl.seasons.Delete" : "删除季节",

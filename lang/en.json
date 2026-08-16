@@ -13,6 +13,7 @@
   "wctrl.misc.AboutTimeMissingHelp": "The Calendar/Weather mod requires AboutTime by Tim Posney in order to run properly.",
   "wctrl.misc.Disregard": "Disregard this message",
   "wctrl.misc.toggleControl": "Toggle the Calendar",
+  "wctrl.misc.CalendarMissing": "Weather Control needs a calendar module to work properly. Enable Simple Calendar, Simple Calendar Reborn, or Seasons & Stars.",
 
   "wctrl.seasons.AddSeason": "Add a new season",
   "wctrl.seasons.Delete" : "Delete Season",

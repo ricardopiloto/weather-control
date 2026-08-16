@@ -1,4 +1,4 @@
-import { SimpleCalendarAPI } from "./SimpleCalendarAPI.js";
+import { CalendarAPI } from "./CalendarAPI.js";
 
 /**
  * Data structure used to represent a calendar date/time in the module.
@@ -12,20 +12,36 @@ export class DateObject {
 }
 
 /**
- * Factory helpers for building `DateObject` instances from Simple Calendar data.
- * Ported from the original `o` class.
+ * Factory helpers for building `DateObject` instances from calendar provider data.
  */
 export class DateObjectFactory {
   /**
-   * Build a `DateObject` from the Simple Calendar timestamp-to-date result.
+   * Build a `DateObject` from a Simple-Calendar-like timestamp-to-date result
+   * (also produced by CalendarAPI.normalizeSeasonsStarsDate).
    */
   static createDateObject(scDate) {
+    if (!scDate?.display) {
+      const obj = new DateObject();
+      obj.raw = {
+        year: 0,
+        month: 0,
+        weekdays: [],
+        currentWeekdayIndex: 0,
+        day: 0,
+        hour: 0,
+        minute: 0,
+        second: 0,
+      };
+      obj.display = { fullDate: "", time: "" };
+      return obj;
+    }
+
     const obj = new DateObject();
 
     obj.raw = {
       year: scDate.year,
       month: Number(scDate.display.month),
-      weekdays: scDate.weekdays,
+      weekdays: scDate.weekdays || [],
       currentWeekdayIndex: scDate.dayOfTheWeek,
       day: Number(scDate.display.day),
       hour: scDate.hour,
@@ -42,11 +58,18 @@ export class DateObjectFactory {
   }
 
   /**
-   * Convenience helper for converting a Simple Calendar timestamp into a `DateObject`.
+   * Build from a Seasons & Stars CalendarDate (or dateChanged payload.newDate).
+   */
+  static createFromSeasonsStarsDate(ssDate) {
+    const normalized = CalendarAPI.normalizeSeasonsStarsDate(ssDate);
+    return this.createDateObject(normalized);
+  }
+
+  /**
+   * Convenience helper for converting a calendar timestamp into a `DateObject`.
    */
   static timestampToDate(timestamp) {
-    const scDate = SimpleCalendarAPI.timestampToDate(timestamp);
+    const scDate = CalendarAPI.timestampToDate(timestamp);
     return this.createDateObject(scDate);
   }
 }
-

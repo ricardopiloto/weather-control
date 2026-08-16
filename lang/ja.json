@@ -4,6 +4,7 @@
   "wctrl.misc.AboutTimeMissingHelp": "Calendar/Weatherを正しく動作させるには、Tim Posney氏のAbout Timeモジュールの導入が必要です。",
   "wctrl.misc.Disregard": "このメッセージを無視する",
   "wctrl.misc.toggleControl": "カレンダーを切り替える",
+  "wctrl.misc.CalendarMissing": "Weather Control を正しく動作させるにはカレンダーモジュールが必要です。Simple Calendar、Simple Calendar Reborn、または Seasons & Stars を有効にしてください。",
 
   "wctrl.seasons.AddSeason": "新しい季節を追加する",
   "wctrl.seasons.color.blue": "青",

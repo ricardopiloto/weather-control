@@ -10,56 +10,79 @@ import { NoticeManager } from "./notices/NoticeManager.js";
 import { chatProxy } from "./utils/ChatProxy.js";
 import { WeatherController } from "./controller/WeatherController.js";
 import { DateObjectFactory } from "./calendar/DateObjectFactory.js";
+import { CalendarAPI, CALENDAR_PROVIDER } from "./calendar/CalendarAPI.js";
 
 let controller = null;
+let initialized = false;
 
-function checkSimpleCalendarVersion() {
+function warnIfNoCalendarModule() {
+  const active = CalendarAPI.getActiveSupportedModules();
+  if (active.length > 0) return true;
+
+  const message = game.i18n.localize("wctrl.misc.CalendarMissing");
+  console.warn(message);
+  ui.notifications.warn(message);
+  return false;
+}
+
+function checkSimpleCalendarVersionIfUsed() {
+  if (!CalendarAPI.isSimpleCalendarFamilyActive()) return true;
+
   const required = "v1.3.73";
   const game = getGame();
   const original = game.modules.get("foundryvtt-simple-calendar");
   const reborn = game.modules.get("foundryvtt-simple-calendar-reborn");
 
-  // Prefer Simple Calendar Reborn when present; assume compatible if loaded.
-  if (reborn) {
-    const current = reborn.data?.version ?? reborn.version;
-    if (!current) return false;
-    return true;
-  }
+  if (reborn?.active) return true;
 
   const current = original?.data?.version ?? original?.version;
-  if (!current) return false;
+  if (!current) return true;
 
   return SemverUtils.isMoreRecent(current, required) || current === required;
 }
 
-Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
-  registerPackageDebugFlag(MODULE_METADATA.id, "level");
-
-  const game = getGame();
-  const devModule = game.modules.get("_dev-mode");
-
-  try {
-    logger.registerLevelCheckCallback(() => {
-      return devModule?.api?.getPackageDebugValue(
-        MODULE_METADATA.id,
-        "level",
-      );
+function bindProviderHooks(provider) {
+  if (provider === CALENDAR_PROVIDER.SIMPLE_CALENDAR) {
+    Hooks.on(HOOK_EVENTS.DateTimeChange, ({ date }) => {
+      const dateObject = DateObjectFactory.createDateObject(date);
+      controller.onDateTimeChange(dateObject);
     });
-  } catch (err) {
-    // Ignore; dev mode is optional
-  }
-});
 
-Hooks.once("ready", () => {
-  if (!checkSimpleCalendarVersion()) {
-    const message =
-      "Weather Control cannot initialize and requires Simple Calendar (v1.3.73+) or Simple Calendar Reborn (v2.5.3+). Make sure one of these modules is installed and enabled.";
-    console.error(message);
-    ui.notifications.error(message);
+    Hooks.on(HOOK_EVENTS.ClockStartStop, () => {
+      controller.onClockStartStop();
+    });
+    return;
   }
-});
 
-Hooks.once("simple-calendar-ready", () => {
+  if (provider === CALENDAR_PROVIDER.SEASONS_AND_STARS) {
+    Hooks.on(HOOK_EVENTS.SeasonsStarsDateChanged, (data) => {
+      const dateObject = DateObjectFactory.createFromSeasonsStarsDate(
+        data?.newDate,
+      );
+      controller.onDateTimeChange(dateObject);
+    });
+
+    Hooks.on(HOOK_EVENTS.SeasonsStarsTimeAdvancementStarted, () => {
+      CalendarAPI.setSeasonsStarsAdvancing(true);
+      controller.onClockStartStop();
+    });
+
+    Hooks.on(HOOK_EVENTS.SeasonsStarsTimeAdvancementPaused, () => {
+      CalendarAPI.setSeasonsStarsAdvancing(false);
+      controller.onClockStartStop();
+    });
+  }
+}
+
+function initializeWeatherControl() {
+  if (initialized) return false;
+
+  const provider = CalendarAPI.resolveProvider();
+  if (!provider) return false;
+
+  initialized = true;
+  logger.info(`Weather Control initializing with calendar provider: ${provider}`);
+
   const game = getGame();
   const settings = new ModuleSettings(game);
 
@@ -81,18 +104,48 @@ Hooks.once("simple-calendar-ready", () => {
 
   Promise.resolve(maybePromise).then(() => {
     controller = new WeatherController(game, chatProxy, settings);
-
-    // Mirror original behavior: wrap Simple Calendar event into a DateObject
-    Hooks.on(HOOK_EVENTS.DateTimeChange, ({ date }) => {
-      const dateObject = DateObjectFactory.createDateObject(date);
-      controller.onDateTimeChange(dateObject);
-    });
-
-    Hooks.on(HOOK_EVENTS.ClockStartStop, () => {
-      controller.onClockStartStop();
-    });
-
+    bindProviderHooks(provider);
     controller.onReady();
   });
+
+  return true;
+}
+
+Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
+  registerPackageDebugFlag(MODULE_METADATA.id, "level");
+
+  const game = getGame();
+  const devModule = game.modules.get("_dev-mode");
+
+  try {
+    logger.registerLevelCheckCallback(() => {
+      return devModule?.api?.getPackageDebugValue(
+        MODULE_METADATA.id,
+        "level",
+      );
+    });
+  } catch (err) {
+    // Ignore; dev mode is optional
+  }
 });
 
+Hooks.once("ready", () => {
+  if (!warnIfNoCalendarModule()) return;
+
+  if (!checkSimpleCalendarVersionIfUsed()) {
+    ui.notifications.warn(
+      "Weather Control: Simple Calendar version may be below v1.3.73. Consider upgrading, or use Simple Calendar Reborn / Seasons & Stars.",
+    );
+  }
+
+  // Calendar APIs may already be present if their ready hooks ran first.
+  initializeWeatherControl();
+});
+
+Hooks.once(HOOK_EVENTS.SimpleCalendarReady, () => {
+  initializeWeatherControl();
+});
+
+Hooks.once(HOOK_EVENTS.SeasonsStarsReady, () => {
+  initializeWeatherControl();
+});

@@ -1,7 +1,7 @@
 import { WeatherTracker } from "../weather/WeatherTracker.js";
 import { WeatherApplication } from "../ui/WeatherApplication.js";
 import { DateObjectFactory } from "../calendar/DateObjectFactory.js";
-import { SimpleCalendarAPI } from "../calendar/SimpleCalendarAPI.js";
+import { CalendarAPI } from "../calendar/CalendarAPI.js";
 import { logger } from "../utils/Logger.js";
 
 /**
@@ -92,7 +92,7 @@ export class WeatherController {
     this.logger.info("No saved weather data - Generating weather");
 
     data.currentDate = DateObjectFactory.timestampToDate(
-      SimpleCalendarAPI.timestamp(),
+      CalendarAPI.timestamp(),
     );
 
     this.weatherTracker.setWeatherData(data);

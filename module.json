@@ -2,7 +2,7 @@
   "id": "weather-control",
   "title": "Weather Control",
   "description": "Add dynamic weather to your FoundryVTT world.",
-  "version": "4.3.5",
+  "version": "${version}",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -14,9 +14,9 @@
       "flags": {}
     }
   ],
-  "url": "https://github.com/ricardopiloto/weather-control",
-  "manifest": "https://github.com/ricardopiloto/weather-control/releases/latest/download/module.json",
-  "download": "https://github.com/ricardopiloto/weather-control/releases/download/4.3.5/weather-control.zip",
+  "url": "${url}",
+  "manifest": "${manifest}",
+  "download": "${download}",
   "esmodules": [
     "scripts/main.js"
   ],
@@ -80,14 +80,7 @@
     }
   ],
   "relationships": {
-    "requires": [
-      {
-        "id": "foundryvtt-simple-calendar-reborn",
-        "type": "module",
-        "manifest": "https://github.com/Fireblight-Studios/foundryvtt-simple-calendar/releases/latest/download/module.json",
-        "compatibility": {}
-      }
-    ],
+    "requires": [],
     "recommends": [
       {
         "id": "wfrp4e",

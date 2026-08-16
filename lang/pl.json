@@ -4,6 +4,7 @@
   "wctrl.misc.AboutTimeMissingHelp": "Moduł Calendar/Weather wymaga AboutTime stworzonego przez Tim Posney do prawidłowego działania.",
   "wctrl.misc.Disregard": "Zignoruj tę wiadomość",
   "wctrl.misc.toggleControl": "Przełącz kalendarz",
+  "wctrl.misc.CalendarMissing": "Weather Control wymaga modułu kalendarza, aby działać poprawnie. Włącz Simple Calendar, Simple Calendar Reborn lub Seasons & Stars.",
 
   "wctrl.seasons.AddSeason": "Dodaj nową porę roku",
   "wctrl.seasons.color.blue": "Niebieski",

@@ -4,6 +4,7 @@
   "wctrl.misc.AboutTimeMissingHelp": "Calendar/Weather 모듈은 제대로 실행되기 위해 AboutTime 모듈을 필요로 한다.",
   "wctrl.misc.Disregard": "이 메시지를 무시",
   "wctrl.misc.toggleControl": "달력 토글",
+  "wctrl.misc.CalendarMissing": "Weather Control이 정상 작동하려면 캘린더 모듈이 필요합니다. Simple Calendar, Simple Calendar Reborn 또는 Seasons & Stars를 활성화하세요.",
 
   "wctrl.seasons.AddSeason": "새 계절 추가",
   "wctrl.seasons.color.blue": "파랑",

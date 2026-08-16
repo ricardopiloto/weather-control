@@ -3,6 +3,7 @@
   "wctrl.misc.AboutTimeMissing": "AboutTime n'est pas installé",
   "wctrl.misc.AboutTimeMissingHelp": "Calendar/Weather nécessite le module AboutTime de Tim Posney pour fonctionner.",
   "wctrl.misc.Disregard": "Ne pas tenir compte de ce message",
+  "wctrl.misc.CalendarMissing": "Weather Control a besoin d'un module de calendrier pour fonctionner correctement. Activez Simple Calendar, Simple Calendar Reborn ou Seasons & Stars.",
 
   "wctrl.seasons.AddSeason": "Ajouter une saison",
   "wctrl.seasons.color.blue": "Bleu",

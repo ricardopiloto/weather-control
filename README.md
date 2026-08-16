@@ -1,6 +1,6 @@
 # Weather Control
 
-Add **dynamic, calendar-driven weather** to your Foundry VTT world. Weather Control integrates with **Simple Calendar** to use the current date and season, then generates daily weather using the **Deft Steps, Light Fingers** rules (WFRP): **four separate 1d10 rolls** (Temperature, Precipitation, Visibility, Wind) with **seasonal modifiers** and optional **environmental** modifiers. The **weather panel** shows the four-column summary; **chat** uses the same **legacy-style** line as before DSLF (**bold temperature** + short **one-line** description) so tools like **WeatherFX** can parse messages. **Foundry scene weather** (rain, snow, clouds) is applied by this module via the canvas layer. **FXMaster** remains optional for extra scene effects if you use it.
+Add **dynamic, calendar-driven weather** to your Foundry VTT world. Weather Control integrates with **Simple Calendar** (original or Reborn) **or** **[Seasons & Stars](https://github.com/rayners/fvtt-seasons-and-stars)** for the current date and season, then generates daily weather using the **Deft Steps, Light Fingers** rules (WFRP): **four separate 1d10 rolls** (Temperature, Precipitation, Visibility, Wind) with **seasonal modifiers** and optional **environmental** modifiers. The **weather panel** shows the four-column summary; **chat** uses the same **legacy-style** line as before DSLF (**bold temperature** + short **one-line** description) so tools like **WeatherFX** can parse messages. **Foundry scene weather** (rain, snow, clouds) is applied by this module via the canvas layer. **FXMaster** remains optional for extra scene effects if you use it.
 
 **Intended for WFRP4e:** This fork is aimed at **Warhammer Fantasy Roleplay 4th Edition** tables and workflows (DSLF default; optional legacy Enemy in Shadows). Other systems can use the module for generic weather, but the **labels and mechanical notes** follow WFRP references.
 
@@ -25,8 +25,8 @@ See [DSLF (default)](#weather-generation-scene-effects-and-chat-dslf--default) a
 
 ## Features
 
-- **Calendar integration**: Uses [Simple Calendar](https://github.com/vigoren/foundryvtt-simple-calendar) or [Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar) for the current date and season. Weather updates when the calendar date or time changes (e.g. when the GM advances time).
-- **Season selector**: Choose **Auto** (follow Simple Calendar’s current season) or fix **Spring**, **Summer**, **Autumn**, or **Winter** for weather generation. The selection is saved across sessions.
+- **Calendar integration**: Uses [Simple Calendar](https://github.com/vigoren/foundryvtt-simple-calendar), [Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar), or [Seasons & Stars](https://github.com/rayners/fvtt-seasons-and-stars) for the current date and season (**one of these is required**; not a hard Foundry `requires` dependency). Weather updates when the calendar date or time changes (e.g. when the GM advances time). If none is enabled, the module warns on world load.
+- **Season selector**: Choose **Auto** (follow the active calendar’s current season) or fix **Spring**, **Summer**, **Autumn**, or **Winter** for weather generation. The selection is saved across sessions.
 - **Deft Steps, Light Fingers (default)**: Roll **1d10** separately for each column; apply modifiers **per roll**: Summer +0; Spring +2; Autumn +2; Winter +4; optional **+2** for **colder climate** and **+2** for **high altitude** (world settings). Results map to the book’s four columns (e.g. Sweltering → Bitter, None → Very Heavy precipitation, Clear → Thick Fog, Still → Very Strong wind). Representative **°F** values drive rain/snow on the canvas.
 - **Reference strings**: Optional **`wctrl.dslf.mechanical.*`** entries in `lang/*.json` are for reference only; they are **not** posted to chat. Apply traits and tests per your rulebook.
 - **Legacy Enemy in Shadows weather** (optional): Seasonal **1d100** → category (Dry, Fair, Rain, …) and DWD-style **temperature** random walk in °F.
@@ -66,15 +66,15 @@ All images are in [`assets/`](./assets/).
 | Dependency | Type | Notes |
 |------------|------|--------|
 | **Foundry VTT** | Core | Minimum 13; verified on 14 |
-| **foundryvtt-simple-calendar** or **foundryvtt-simple-calendar-reborn** | Required (one of) | Original: minimum **v1.3.73**. Reborn: **v2.5.3+** ([Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar)). Weather Control will not initialise without one of these. |
+| **Calendar** (one of) | Required for proper operation (soft) | **[Simple Calendar](https://github.com/vigoren/foundryvtt-simple-calendar)** (v1.3.73+) **or** **[Simple Calendar Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar)** (v2.5.3+) **or** **[Seasons & Stars](https://github.com/rayners/fvtt-seasons-and-stars)**. Not listed under `module.json` `requires`. Prefer **one** calendar module. If none is active, Weather Control shows a warning on load. |
 | **[Weather FX](https://github.com/ricardopiloto/weatherfx)** | Optional (recommended) | Drives **FXMaster**-based effects from Weather Control (chat and/or settings). Not required for this module’s own canvas weather. |
 | **FXMaster** | Optional | Required by **Weather FX** for its canvas workflow; can also be used with Weather Control alone for extra effects (rain, snow, etc.) |
 
 ### Installation
 
-1. Install **Simple Calendar** and meet its requirements.
+1. Install **one** supported calendar: Simple Calendar / Reborn **or** Seasons & Stars, and meet that calendar’s requirements.
 2. Install **Weather Control** via the Foundry setup (manifest or manual install).
-3. Enable both modules in your world. Ensure Simple Calendar is configured with a calendar and, if you want seasonal weather, with seasons (e.g. Spring, Summer, Autumn, Winter).
+3. Enable Weather Control and your chosen calendar in the world. Configure the calendar with seasons (e.g. Spring, Summer, Autumn, Winter) if you want **Auto** seasonal weather.
 4. (Optional) Install **[Weather FX](https://github.com/ricardopiloto/weatherfx)** and **FXMaster** if you use that stack to mirror chat-driven weather to FXMaster on the scene; see the Weather FX repository for its setup and **output to chat** in Weather Control.
 
 ---
@@ -83,15 +83,15 @@ All images are in [`assets/`](./assets/).
 
 ### Enabling the module
 
-1. In **Setup** → **Add-on Modules**, enable **Weather Control** and **Simple Calendar**.
-2. Load a world; the Weather Control panel will appear when the calendar is shown (or for GMs depending on “Calendar Display” and permissions).
+1. In **Setup** → **Add-on Modules**, enable **Weather Control** and **one** supported calendar (Simple Calendar / Reborn **or** Seasons & Stars).
+2. Load a world; the Weather Control panel will appear when the calendar is shown (or for GMs depending on “Calendar Display” and permissions). If no supported calendar is active, you will see a warning.
 
 ### Calendar and weather panel
 
-- The **Weather Control** window shows the current date (from Simple Calendar), optional clock, and the current **temperature** and **precipitation** description.
+- The **Weather Control** window shows the current date (from the active calendar), optional clock, and the current **temperature** and **precipitation** description.
 - **GMs** see:
   - **Season selector**: Dropdown with **Auto**, **Spring**, **Summer**, **Autumn**, **Winter**.  
-    - **Auto**: Use the current season from Simple Calendar.  
+    - **Auto**: Use the current season from the active calendar.  
     - A fixed season: Use that season for the next weather generation until you change it.
   - **Regenerate** button: Roll new weather using the current season (from the dropdown or from the calendar if Auto).
 
@@ -230,14 +230,21 @@ Source: **Germany**, historical seasonal data. **Deutscher Wetterdienst (DWD)** 
 ## Credits and links
 
 - **Original module**: [Weather Control](https://gitlab.com/jstebenne/foundryvtt-weather-control) by Julien Stébennne (The Bird#8334).
-- **Simple Calendar**: [foundryvtt-simple-calendar](https://github.com/vigoren/foundryvtt-simple-calendar).
+- **Simple Calendar**: [foundryvtt-simple-calendar](https://github.com/vigoren/foundryvtt-simple-calendar) / [Reborn](https://github.com/Fireblight-Studios/foundryvtt-simple-calendar).
+- **Seasons & Stars**: [fvtt-seasons-and-stars](https://github.com/rayners/fvtt-seasons-and-stars).
 - **WFRP / Enemy in Shadows Companion**: This fork/adaptation is intended for use with *Warhammer Fantasy Roleplay*; the seasonal 1d100 weather table is from *Enemy in Shadows Companion*.
 
 ---
 
 ## For maintainers (releases)
 
-Publishing a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) triggers the **Release assets** workflow (`.github/workflows/release.yml`). It builds `<id>.zip` from `module.json`’s `id` and attaches that zip plus `module.json` to the release. The manifest’s `manifest` URL already points at `releases/latest/download/module.json`; bump `version` and `download` in `module.json` when you tag a new version.
+Publishing a [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository) (with a version tag such as `4.3.6` or `v4.3.6`) triggers the **Release assets** workflow (`.github/workflows/release.yml`). The workflow:
+
+1. Checks out the release tag
+2. Fills `module.json` placeholders (`${version}`, `${url}`, `${manifest}`, `${download}`) from the tag and repository
+3. Builds `<id>.zip` and uploads the zip plus the **substituted** `module.json` to that release
+
+You do **not** need to hand-edit `version` or `download` in the committed `module.json` for packaging—the source file keeps placeholders (same pattern as [ai-actors](https://github.com/ricardopiloto/ai-actors)). End users should install from the **release assets** (e.g. `releases/latest/download/module.json`), not from the raw default-branch file with placeholders.
 
 ---
 
